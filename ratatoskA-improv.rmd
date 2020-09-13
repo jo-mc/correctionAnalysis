@@ -175,3 +175,29 @@ plot(density(1-x),
   col.lab = "blue", font.lab = 3,
   col = rgb(0.5, 0.5, 0, 0.6))
 ```
+
+```{r, echo=FALSE, figures-histogram, fig.show="hold", out.width="50%"}
+x <- passData$V4
+hist(x,50, 
+     main = "Histogram - Corrected Match score",
+     col.main = rgb(0, 0.5, 0.5),
+     sub = "",
+     pch = 20,
+     cex = 1,
+     col.sub = "green4",
+     xlab = "score 1 = 100%", ylab = "Count",
+     col.lab = "blue", font.lab = 3,
+     col = rgb(0, 0.5, 0.5, 0.6))
+
+x <- passData$V3
+hist(x,50,
+  main = "Histogram - Default Match score",
+  col.main = rgb(0.5, 0.5, 0),
+  sub = "",
+  pch = 20,
+  cex = 1,
+  col.sub = "green4",
+  xlab = "score 1 = 100%", ylab = "Count",
+  col.lab = "blue", font.lab = 3,
+  col = rgb(0.5, 0.5, 0, 0.6))
+```
