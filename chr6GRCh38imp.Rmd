@@ -1,0 +1,203 @@
+---
+title: "ratatosk correction v1.0"
+author: "joe"
+date: "12/09/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## RATATOSK V1,0
+
+#### Corrected Reads: 252875 of 261177   (~97%)  [less than ash ref]
+<!-- chr6 figure:  https://ghr.nlm.nih.gov/chromosome/6#idiogram -->
+![chr6 ideogram](chr6.png)
+
+#### Aligned with minimap to the <span style="color:red">GRCh38</span> Reference.
+
+```{r echo=FALSE}
+passData <- read.table("C:/BIGDATA______TEMPORARY/HG002chr6Correction/pass5_imp.txt", skip =3)
+```
+
+```{r, echo=FALSE, figures-side, fig.show="hold", out.width="50%"}
+plot(passData$V1,passData$V5, main = "Position vs Clip size",
+       col.main = "green4",
+       sub = "",
+       pch = 20,
+       cex = 1,
+       col.sub = "green4",
+       xlab = "position on chromosome 6", ylab = "clip size",
+       col.lab = "blue", font.lab = 3,
+      col = rgb(0.5, 0.5, 0, 0.6))
+plot(passData$V1,passData$V2, main = "Position vs Length size",
+       col.main = "green4",
+       sub = "",
+       pch = 20,
+       cex = 1,
+       col.sub = "green4",
+       xlab = "position on chromosome 6", ylab = "read length",
+       col.lab = "blue", font.lab = 3,
+      col = rgb(0, 0.5, 0.5, 0.6))
+```
+
+```{r, echo=FALSE, figures-side2, fig.show="hold", out.width="50%"}
+plot(passData$V1,passData$V3, main = "Position vs Matches per read (no clip)",
+       col.main = "green4",
+       sub = "",
+       pch = 20,
+       cex = 1,
+       col.sub = "green4",
+       xlab = "position on chromosome 6", ylab = "match %",
+       col.lab = "blue", font.lab = 3,
+      col = rgb(0.5, 0.5, 0, 0.6))
+```
+
+
+
+```{r, echo=FALSE, figures-side3, fig.show="hold", out.width="50%"}
+newdata <- passData[order(passData$V2),]
+plot(newdata$V2,newdata$V5, main = "Read Length vs Clip size",
+       col.main = "green4",
+       sub = "",
+       pch = 20,
+       cex = 1,
+       col.sub = "green4",
+       xlab = "Read Length", ylab = "clip size",
+       col.lab = "blue", font.lab = 3,
+      col = rgb(0.5, 0.5, 0, 0.6))
+plot(newdata$V2,newdata$V3, main = "Read Length vs M score",
+       col.main = "green4",
+       sub = "",
+       pch = 20,
+       cex = 1,
+       col.sub = "green4",
+       xlab = "Read Length", ylab = " M score",
+       col.lab = "blue", font.lab = 3,
+      col = rgb(0, 0.5, 0.5, 0.6))
+```
+
+<!--
+# ![position vs clip length](pos-clp.png) ![position vs clip length](pos-len.png)
+# ![position vs clip length](pos-m-correct.png)
+
+ ![position vs clip length](len-m-correct.png)![position vs clip length](len-clp.png)   
+-->
+
+<!--
+Simple way to show table:
+
+| header | header | header |
+|--------|:------:|-------:|
+| a      |    b   |      c |
+| 1      |    2   |      3 |
+| foo    |   bar  |    baz |
+
+better: allows r code chunks,
+
+bootstrap method to make table: (link also shows html method)
+# https://stackoverflow.com/questions/58035899/is-it-possible-to-put-an-rmarkdown-chunk-inside-a-table-cell-in-a-rmd-file
+-->
+
+<div class="container">
+<div class="row">
+<div class="col-md-4">Match per cent before correction</div>
+<div class="col-md-4">Match per cent after correction</div>
+<div class="col-md-4">Read Length Statistics</div>
+</div>
+<div class="row">
+<div class="col-md-4">
+```{r echo=FALSE}
+readLength <- data.frame(passData$V3)
+#print("Read Match per cent before correction Statistics")
+summary(readLength)
+```
+</div>
+<div class="col-md-4">
+```{r echo=FALSE}
+readLength <- data.frame(passData$V4)
+#print("Read Match per cent after correction Statistics")
+summary(readLength)
+```
+</div>
+<div class="col-md-4">
+```{r echo=FALSE}
+readLength <- data.frame(passData$V2)
+#print("Read Length Statistics")
+summary(readLength)
+```
+</div>
+</div>
+</div>
+
+
+#### Uncorrected read lengths across chromosome 6
+
+```{r, echo=FALSE}
+library(ggplot2)
+# now in above plot
+# ggplot(data = passData, mapping = aes(x = V1, y = V2)) + geom_point() + labs(x = "Position on chromosome 6") + labs(y = "Read Length") + labs(title = "Read lengths and position for nanopore reads that could not be corrected") + labs(caption = "(based on data from GIAB)") + scale_x_continuous(labels = scales::comma)
+
+  
+ggplot(data = passData, mapping = aes(x = V1, y = V2)) + geom_point(size = 0.5) + labs(x = "Position on chromosome 6") + labs(y = "Read Length") + labs(title = "LOG SCALE of Length and density distribution overlay") + labs(caption = "(based on data from GIAB)") + scale_x_continuous(labels = scales::comma) +
+ scale_y_continuous(trans='log10', labels = scales::comma) +
+  geom_violin(aes(group = cut_width(V1, 10000000), alpha = .5, colour = "orange")) + theme(legend.position = "none")   
+```
+
+---
+# https://stackoverflow.com/questions/11610377/how-do-i-change-the-formatting-of-numbers-on-an-axis-with-ggplot
+for scales::comma 
+---
+
+```{r, echo=FALSE, figures-sideDensity, fig.show="hold", out.width="50%"}
+x <- passData$V4
+plot(density(1-x),
+     main = "kernel density estimation - Corrected Match (1-M) score",
+     col.main = rgb(0, 0.5, 0.5),
+     sub = "% of base matches to read length (less clipping). gaussian",
+     pch = 20,
+     cex = 1,
+     col.sub = "green4",
+     xlab = "1 - M score", ylab = "Density",
+     col.lab = "blue", font.lab = 3,
+     col = rgb(0, 0.5, 0.5, 0.6))
+
+x <- passData$V3
+plot(density(1-x),
+  main = "kernel density estimation - Default Match (1-M) score",
+  col.main = rgb(0.5, 0.5, 0),
+  sub = "% of base matches to (corrected) read length (less clipping). gaussian",
+  pch = 20,
+  cex = 1,
+  col.sub = "green4",
+  xlab = "1 - M score", ylab = "Density",
+  col.lab = "blue", font.lab = 3,
+  col = rgb(0.5, 0.5, 0, 0.6))
+```
+
+```{r, echo=FALSE, figures-histogram, fig.show="hold", out.width="50%"}
+x <- passData$V4
+hist(x,50, 
+     main = "Histogram - Corrected Match score",
+     col.main = rgb(0, 0.5, 0.5),
+     sub = "",
+     pch = 20,
+     cex = 1,
+     col.sub = "green4",
+     xlab = "score 1 = 100%", ylab = "Count",
+     col.lab = "blue", font.lab = 3,
+     col = rgb(0, 0.5, 0.5, 0.6))
+
+x <- passData$V3
+hist(x,50,
+  main = "Histogram - Default Match score",
+  col.main = rgb(0.5, 0.5, 0),
+  sub = "",
+  pch = 20,
+  cex = 1,
+  col.sub = "green4",
+  xlab = "score 1 = 100%", ylab = "Count",
+  col.lab = "blue", font.lab = 3,
+  col = rgb(0.5, 0.5, 0, 0.6))
+```
